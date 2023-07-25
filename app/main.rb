@@ -1,5 +1,6 @@
 require 'gosu'
 require_relative 'player'
+require_relative 'star'
 
 class Tutorial < Gosu::Window
     def initialize
@@ -10,6 +11,11 @@ class Tutorial < Gosu::Window
 
         @player = Player.new
         @player.warp(320, 240)
+
+        @star_anim = Gosu::Image.load_tiles("media/star.png", 25, 25)
+        @stars = Array.new
+
+        @font = Gosu::Font.new(20)
     end
 
     def update
@@ -23,11 +29,18 @@ class Tutorial < Gosu::Window
             @player.accelerate
         end
         @player.move
+        @player.collect_stars(@stars)
+
+        if rand(100) < 4 and @stars.size < 25
+            @stars.push(Star.new(@star_anim))
+        end
     end
 
     def draw
       @player.draw
       @background_image.draw(0, 0, 0,)
+      @stars.each { |star| star.draw }
+      @font.draw_text("Score: " + @player.score.to_s, 10, 10, ZOrder::UI, 1.0, 1.0, Gosu::Color::YELLOW)
     end
 
     def button_down(id)
